@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"io/fs"
+	"log"
 	"strconv"
 	"sync"
 )
@@ -100,15 +101,6 @@ func (w *WorksheetReader) getValues() ([]ColValue, error) {
 		return nil, errors.New("cannot find sheetData")
 	}
 
-	found, err = w.goToSheetElement("row", 0)
-	if err != nil {
-		return nil, err
-	}
-
-	if !found {
-		return nil, errors.New("cannot find row")
-	}
-
 	rowCount := 0
 	for {
 		t, tokenErr := w.decoder.Token()
@@ -122,10 +114,11 @@ func (w *WorksheetReader) getValues() ([]ColValue, error) {
 
 		switch t := t.(type) {
 		case xml.StartElement:
+			log.Println(t.Name.Local)
 			if t.Name.Local == "row" {
 				rowCount++
-				if rowCount > 1 {
-					break
+				if rowCount == 2 {
+					return w.cols, nil
 				}
 				continue
 			}
