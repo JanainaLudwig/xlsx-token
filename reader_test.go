@@ -25,7 +25,9 @@ func TestXlsxReader_GetRowColumns(t *testing.T) {
 			fields:   fields{
 				file: "test_files/test_one.xlsx",
 			},
-			args:     args{},
+			args:     args{
+				sheet: "sheet1",
+			},
 			wantCols: nil,
 			wantErr:  false,
 		},

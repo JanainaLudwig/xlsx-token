@@ -109,6 +109,7 @@ func (w *WorksheetReader) getValues() ([]ColValue, error) {
 		return nil, errors.New("cannot find row")
 	}
 
+	rowCount := 0
 	for {
 		t, tokenErr := w.decoder.Token()
 		if tokenErr != nil {
@@ -121,24 +122,21 @@ func (w *WorksheetReader) getValues() ([]ColValue, error) {
 
 		switch t := t.(type) {
 		case xml.StartElement:
-			if t.Name.Local != "row" {
+			if t.Name.Local == "row" {
+				rowCount++
+				if rowCount > 1 {
+					break
+				}
 				continue
 			}
 
-			for {
-				t, _ := w.decoder.Token()
-
-				switch t := t.(type) {
-				case xml.StartElement:
-					if t.Name.Local == "c" {
-						value, tokenErr := w.NewColValue(&t)
-						if tokenErr != nil {
-							return nil, tokenErr
-						}
-
-						w.cols = append(w.cols, *value)
-					}
+			if t.Name.Local == "c" {
+				value, tokenErr := w.NewColValue(&t)
+				if tokenErr != nil {
+					return nil, tokenErr
 				}
+
+				w.cols = append(w.cols, *value)
 			}
 		}
 	}

@@ -5,5 +5,5 @@ const (
 )
 
 func worksheetPath(name string) string {
-	return WorksheetFolder + "/" + name
+	return WorksheetFolder + "/" + name + ".xml"
 }
