@@ -2,11 +2,15 @@ package xlsx_token
 
 import (
 	"archive/zip"
+	"encoding/xml"
 	"io"
 )
 
 type XlsxReader struct {
 	zipReader *zip.Reader
+	sharedStrings map[int]string
+	sharedStringsDecoder *xml.Decoder
+	sharedStringIndex int
 }
 
 // Open returns XlsxReader from *os.File
@@ -18,6 +22,7 @@ func Open(name string) (*XlsxReader, error) {
 
 	return &XlsxReader{
 		zipReader: &file.Reader,
+		sharedStrings: make(map[int]string),
 	}, nil
 }
 

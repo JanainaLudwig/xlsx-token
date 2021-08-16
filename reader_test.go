@@ -2,6 +2,7 @@ package xlsx_token
 
 import (
 	"log"
+	"reflect"
 	"testing"
 )
 
@@ -28,7 +29,7 @@ func TestXlsxReader_GetRowColumns(t *testing.T) {
 			args:     args{
 				sheet: "sheet1",
 			},
-			wantCols: nil,
+			wantCols: []string{"a", "b", "c", "d"},
 			wantErr:  false,
 		},
 	}
@@ -41,14 +42,14 @@ func TestXlsxReader_GetRowColumns(t *testing.T) {
 
 			gotCols, err := reader.GetRowColumns(tt.args.sheet, tt.args.limit)
 			log.Println(gotCols, err)
-			//if (err != nil) != tt.wantErr {
-			//	t.Errorf("GetRowColumns() error = %v, wantErr %v", err, tt.wantErr)
-			//	return
-			//}
-			//
-			//if !reflect.DeepEqual(gotCols, tt.wantCols) {
-			//	t.Errorf("GetRowColumns() gotCols = %v, want %v", gotCols, tt.wantCols)
-			//}
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetRowColumns() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if !reflect.DeepEqual(gotCols, tt.wantCols) {
+				t.Errorf("GetRowColumns() gotCols = %v, want %v", gotCols, tt.wantCols)
+			}
 		})
 	}
 }

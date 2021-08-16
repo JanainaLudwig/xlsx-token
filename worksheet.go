@@ -5,7 +5,6 @@ import (
 	"errors"
 	"io"
 	"io/fs"
-	"log"
 	"strconv"
 	"sync"
 )
@@ -62,37 +61,10 @@ func (w *WorksheetReader) NewColValue(element *xml.StartElement) (*ColValue, err
 	return &val, err
 }
 
-func (w *WorksheetReader) goToSheetElement(localName string, position int) (bool, error) {
-	currPosition := 0
-	for {
-		t, tokenErr := w.decoder.Token()
-		if tokenErr != nil {
-			if tokenErr == io.EOF {
-				break
-			}
-
-			return false, tokenErr
-		}
-
-		switch t := t.(type) {
-		case xml.StartElement:
-			if t.Name.Local == localName {
-				if currPosition == position {
-					return true, nil
-				}
-
-				currPosition++
-			}
-		}
-	}
-
-	return false, nil
-}
-
 func (w *WorksheetReader) getValues() ([]ColValue, error) {
 	w.decoder = xml.NewDecoder(w.file)
 
-	found, err := w.goToSheetElement("sheetData", 0)
+	found, err := goToSheetElement(w.decoder, "sheetData", 0)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +86,6 @@ func (w *WorksheetReader) getValues() ([]ColValue, error) {
 
 		switch t := t.(type) {
 		case xml.StartElement:
-			log.Println(t.Name.Local)
 			if t.Name.Local == "row" {
 				rowCount++
 				if rowCount == 2 {
